@@ -39,8 +39,10 @@ app.get('/todos', function(req, res){
 // GET /todos/:id variable to pass in
 app.get('/todos/:id', function(req, res){
   var todoId = req.params.id;
-  var matchedTodo = _.findWhere(todos, {id: todoId});
 
+
+  var matchedTodo = _.findWhere(todos, {id: todoId});
+  console.log(matchedTodo);
 //  var matchingTodo = undefined;
 //  console.log(typeof todoId + ': ' + todoId);
 //  todos.forEach(function(todo){
@@ -50,11 +52,11 @@ app.get('/todos/:id', function(req, res){
 //      }
 //  });
 
-  if(typeof matchingTodo === 'undefined'){
+  if(typeof matchedTodo === 'undefined'){
        res.status(404).send();
   }
   else {
-    res.json(matchingTodo);
+    res.json(matchedTodo);
   }
   //res.send('Asking for todo with id of ' + req.params.id);
 
