@@ -34,7 +34,32 @@ app.get('/',function (req, res){
 
 // GET /todos
 app.get('/todos', function(req, res){
-  var queryParams = req.query;
+  var query = req.query;
+  var where = {};
+
+
+  if (query.hasOwnProperty('completed') && query.completed == 'true'){
+    where.completed = true;
+  } else if (query.hasOwnProperty('completed') && query.completed == 'false'){
+    where.completed = false
+  }
+
+  if(query.hasOwnProperty('q') && query.q.length > 0){
+    where.description = {
+      $like:'%' + query.q +'%'
+    }
+  }
+
+  db.todo.findAll( {where: where} ).then(function(todos){
+    /*filteredTodos = [];
+    todos.forEach(function(todo){
+      filteredTodos.push(todo.toJSON());
+    });*/
+    res.json(todos);
+  }, function(e) {
+    res.status(500).send();
+  });
+  /*
   var filteredTodos = todos;
 
   // if has property && completed is true
@@ -50,7 +75,8 @@ app.get('/todos', function(req, res){
       return todo.description.indexOf(queryParams.q) > -1;
     })
   }
-  res.json(filteredTodos);
+  res.json(filteredTodos);*/
+
 });
 
 // GET /todos/:id variable to pass in
