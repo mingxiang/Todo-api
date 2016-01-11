@@ -129,7 +129,7 @@ app.post('/todos', function(req, res){
     res.json(todo);
     todoNextId++;
   }).catch(function(e){
-    res.status(400).json(e)
+    res.status(400).json(e);
   });
 
   /*
@@ -153,10 +153,28 @@ app.post('/todos', function(req, res){
 
 app.delete('/todos/:id',function(req, res){
   var todoId = req.params.id;
+
+  db.todo.destroy({
+   where: {
+      id: todoId //this will be your id that you want to delete
+   }
+}).then(function(rowDeleted){ // rowDeleted will return number of rows deleted
+  if(rowDeleted === 0){
+     res.status(404).json({
+       error: 'No todo with id'
+     })
+   } else {
+     res.status(204).send() // nth to send back
+   }
+}, function(){
+    res.status(500).send();
+});
   //  todos = _.reject(todos,function(todo){
   //    return todo.id === todoId;
   //  });
 
+
+  /*
   var matchedTodo = _.findWhere(todos, {id: todoId});
 
   if(!matchedTodo) {
@@ -164,7 +182,7 @@ app.delete('/todos/:id',function(req, res){
   } else {
     todos = _.without(todos, matchedTodo);
     res.json(matchedTodo);
-  }
+  }*/
 
   //  res.send('Matching ids will be deleted from system');
 });
