@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
+var db = require('./db.js');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -9,17 +10,17 @@ var PORT = process.env.PORT || 3000;
 // model
 
 /*var todos = [{
-  id: '1',
-  description: 'Meet for lunch',
-  completed: false
+id: '1',
+description: 'Meet for lunch',
+completed: false
 }, {
-  id: '2',
-  description: 'Go to market',
-  completed: false
+id: '2',
+description: 'Go to market',
+completed: false
 }, {
-  id: '3',
-  description: 'DOTO @ 10pm',
-  completed: true
+id: '3',
+description: 'DOTO @ 10pm',
+completed: true
 }];*/
 
 var todos = []
@@ -59,17 +60,17 @@ app.get('/todos/:id', function(req, res){
 
   var matchedTodo = _.findWhere(todos, {id: todoId});
   console.log(matchedTodo);
-//  var matchingTodo = undefined;
-//  console.log(typeof todoId + ': ' + todoId);
-//  todos.forEach(function(todo){
-//  console.log(typeof todo.id + ': ' + todo.id);
-//      if(todo.id === todoId){
-//        console.log(matchingTodo);
-//      }
-//  });
+  //  var matchingTodo = undefined;
+  //  console.log(typeof todoId + ': ' + todoId);
+  //  todos.forEach(function(todo){
+  //  console.log(typeof todo.id + ': ' + todo.id);
+  //      if(todo.id === todoId){
+  //        console.log(matchingTodo);
+  //      }
+  //  });
 
   if(typeof matchedTodo === 'undefined'){
-       res.status(404).send();
+    res.status(404).send();
   }
   else {
     res.json(matchedTodo);
@@ -82,6 +83,21 @@ app.get('/todos/:id', function(req, res){
 app.post('/todos', function(req, res){
   var body = _.pick(req.body, 'description', 'completed'); // use _.pick
 
+  // call create on db.todo
+  //  respond with 200 and todo
+  //  e res.status(400).json(e)
+
+  body.description = body.description.trim();
+  body.id = todoNextId.toString();
+
+  db.todo.create(req.body).then(function(todo){
+    res.json(todo);
+    todoNextId++;
+  }).catch(function(e){
+    res.status(400).json(e)
+  });
+
+  /*
   if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
     return res.status(400).send();
   }
@@ -95,15 +111,16 @@ app.post('/todos', function(req, res){
   todos.push(body);
   console.log(body);
   res.json(body);
+  */
 });
 
 // DELETE /todos/:id
 
 app.delete('/todos/:id',function(req, res){
   var todoId = req.params.id;
-//  todos = _.reject(todos,function(todo){
-//    return todo.id === todoId;
-//  });
+  //  todos = _.reject(todos,function(todo){
+  //    return todo.id === todoId;
+  //  });
 
   var matchedTodo = _.findWhere(todos, {id: todoId});
 
@@ -114,7 +131,7 @@ app.delete('/todos/:id',function(req, res){
     res.json(matchedTodo);
   }
 
-//  res.send('Matching ids will be deleted from system');
+  //  res.send('Matching ids will be deleted from system');
 });
 
 // PUT /todos/:id
@@ -144,6 +161,9 @@ app.put('/todos/:id', function (req, res){
   res.json(matchedTodo);
 });
 
-app.listen(PORT, function (){
-  console.log('Express listen on port ' + PORT + '!');
+db.sequelize.sync().then(function() {
+//db.sequelize.sync({force: true}).then(function() {
+  app.listen(PORT, function (){
+    console.log('Express listen on port ' + PORT + '!');
+  });
 });
