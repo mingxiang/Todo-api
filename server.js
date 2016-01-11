@@ -57,9 +57,8 @@ app.get('/todos', function(req, res){
 app.get('/todos/:id', function(req, res){
   var todoId = req.params.id;
 
-
-  var matchedTodo = _.findWhere(todos, {id: todoId});
-  console.log(matchedTodo);
+  //  var matchedTodo = _.findWhere(todos, {id: todoId});
+  // console.log(matchedTodo);
   //  var matchingTodo = undefined;
   //  console.log(typeof todoId + ': ' + todoId);
   //  todos.forEach(function(todo){
@@ -69,13 +68,23 @@ app.get('/todos/:id', function(req, res){
   //      }
   //  });
 
-  if(typeof matchedTodo === 'undefined'){
-    res.status(404).send();
-  }
-  else {
-    res.json(matchedTodo);
-  }
+  // if(typeof matchedTodo === 'undefined'){
+  //   res.status(404).send();
+  // }
+  // else {
+  //   res.json(matchedTodo);
+  // }
   //res.send('Asking for todo with id of ' + req.params.id);
+
+  db.todo.findById(todoId).then(function(todo){
+      if(!!todo){
+        res.json(todo.toJSON());
+      } else {
+        res.status(404).send();
+      }
+    }, function (e) {
+      res.status(500).send();
+    });
 
 });
 
