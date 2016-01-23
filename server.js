@@ -25,6 +25,7 @@ completed: true
 
 var todos = []
 var todoNextId = 1;
+var userId = 1;
 
 app.use(bodyParser.json());
 
@@ -80,7 +81,7 @@ res.json(filteredTodos);*/
 });
 
 // GET /todos/:id variable to pass in
-app.get('/todos/:id', function(req, res){
+app.get('/todos/:id', function(req, res){app
   var todoId = req.params.id;
 
   //  var matchedTodo = _.findWhere(todos, {id: todoId});
@@ -216,9 +217,28 @@ app.put('/todos/:id', function (req, res){
   })
 });
 
+app.post('/users', function(req, res){
+  var body = _.pick(req.body, 'email', 'password'); // use _.pick
+
+  // call create on db.todo
+  //  respond with 200 and todo
+  //  e res.status(400).json(e)
+
+  body.id = userId.toString();
+
+  db.user.create(req.body).then(function(user){
+    res.json(user);
+    todoNextId++;
+  }).catch(function(e){
+    res.status(400).json(e);
+  });
+});
+
 db.sequelize.sync().then(function() {
-  //db.sequelize.sync({force: true}).then(function() {
+  db.sequelize.sync({force: true}).then(function() {
   app.listen(PORT, function (){
     console.log('Express listen on port ' + PORT + '!');
   });
+});
+
 });
