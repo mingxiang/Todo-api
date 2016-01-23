@@ -227,14 +227,14 @@ app.post('/users', function(req, res){
   body.id = userId.toString();
 
   db.user.create(req.body).then(function(user){
-    res.json(user);
+    res.json(user.toPublicJSON());
     todoNextId++;
   }).catch(function(e){
     res.status(400).json(e);
   });
 });
 
-db.sequelize.sync().then(function() {
+db.sequelize.sync({force: true}).then(function() {
 //  db.sequelize.sync({force: true}).then(function() {
   app.listen(PORT, function (){
     console.log('Express listen on port ' + PORT + '!');
