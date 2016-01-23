@@ -128,7 +128,11 @@ app.post('/todos', middleware.requireAuthentication, function(req, res){
   body.id = todoNextId.toString();
 
   db.todo.create(req.body).then(function(todo){
-    res.json(todo);
+    req.user.addTodo(todo).then(function(){
+      return todo.reload();
+    }).then(function (todo){
+      res.json(todo);
+    });
     todoNextId++;
   }).catch(function(e){
     res.status(400).json(e);
